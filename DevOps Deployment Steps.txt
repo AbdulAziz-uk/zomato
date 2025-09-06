@@ -1,240 +1,233 @@
-DevOps Project - Kastro
-Deployment of ZOMATO Project
+Deployment of ZOMATO Project by AbdulAziz
 --------------------------------------------
-Repo URL: https://github.com/KastroVKiran/DevOps-Project-Zomato-Kastro.git
-
+Repo URL: https://github.com/AbdulAziz-uk/zomato.git
+Follow these steps for Deployment:
 
 1. Launch an Instance (Ubuntu, 24.04, t2.large, 30 GB)
-
-2. Connect to the instance
-
-3. Update the packages
-$ switch to root user ---> sudo su
-$ sudo apt update -y
-
-4. Install AWS CLI
-sudo apt install unzip -y
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
+2. Connect to the instance:
+3. Switch to root user and Update the packages: 
+	$sudo su
+    $sudo apt update
+4. Install AWS CLI:
+	sudo apt install unzip -y
+	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+	unzip awscliv2.zip
+	sudo ./aws/install
 
 5. Install Jenkins on Ubuntu
-(Reference URL for commands: https://www.jenkins.io/doc/book/installing/linux/#debianubuntu)
-#!/bin/bash
-sudo apt update -y
-wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo tee /etc/apt/keyrings/adoptium.asc
-echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
-sudo apt update -y
-sudo apt install temurin-17-jdk -y
-/usr/bin/java --version
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update -y
-sudo apt-get install jenkins -y
-sudo systemctl start jenkins
-sudo systemctl status jenkins
-
-Verifiy Jenkins installation: jenkins --version
-
+	(Reference URL for commands: https://www.jenkins.io/doc/book/installing/linux/#debianubuntu)
+	#!/bin/bash
+	sudo apt update -y
+	wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo tee /etc/apt/keyrings/adoptium.asc
+	echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+	sudo apt update -y
+	sudo apt install temurin-17-jdk -y
+	/usr/bin/java --version
+	curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+	echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+	sudo apt-get update -y
+	sudo apt-get install jenkins -y
+	sudo systemctl start jenkins
+	sudo systemctl status jenkins
+Verifiy Jenkins installation: 
+	$jenkins --version
 5.1. Open Port No. 8080 for VM and access Jenkins
+	http://public_IP:8080
 5.2. Setup Jenkins by following the necessary steps
 
-6. Install Docker on Ubuntu
-(Reference URL for commands: https://docs.docker.com/engine/install/ubuntu/)
+6. Install Docker on Ubuntu:(Reference URL for commands: https://docs.docker.com/engine/install/ubuntu/)
+	# Add Docker's official GPG key:
+	sudo apt-get update
+	sudo apt-get install ca-certificates curl
+	sudo install -m 0755 -d /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+	sudo chmod a+r /etc/apt/keyrings/docker.asc
+	# Add the repository to Apt sources:
+	echo \
+	  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+	  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+	  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt-get update
+	sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+	sudo usermod -aG docker ubuntu
+	sudo chmod 777 /var/run/docker.sock
+	newgrp docker
+	sudo systemctl status docker
 
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-sudo usermod -aG docker ubuntu
-sudo chmod 777 /var/run/docker.sock
-newgrp docker
-sudo systemctl status docker
+	Verifiy Docker installation: 
+	$docker --version
 
-Verifiy Docker installation: docker --version
+7. Install Trivy on Ubuntu:(Reference URL for commands: https://aquasecurity.github.io/trivy/v0.55/getting-started/installation/)
+	sudo apt-get install wget apt-transport-https gnupg
+	wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+	echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+	sudo apt-get update
+	sudo apt-get install trivy
+	
+	Verifiy Trivy installation: 
+	$trivy --version
 
-7. Install Trivy on Ubuntu
-(Reference URL for commands: https://aquasecurity.github.io/trivy/v0.55/getting-started/installation/)
-sudo apt-get install wget apt-transport-https gnupg
-wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-sudo apt-get update
-sudo apt-get install trivy
+8. Install Docker Scout:
+	Make sure to Login to DockerHub account in browser: http://hub.docker.com
+	<Follow the process as explained in the video>
 
-Verifiy Trivy installation: trivy --version
-
-8. Install Docker Scout
-Make sure to Login to DockerHub account in browser
-<Follow the process as explained in the video>
-
-9. Install SonarQube using Docker
-$ docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
-$ docker ps (You can see SonarQube container)
-
-<Follow the process as explained in the video>
+9. Install SonarQube using Docker:
+	$ docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+	$ docker ps (You can see SonarQube container)
+	
+	<Follow the process as explained in the video>
 
 10. Installation of Plugins in Jenkins
-Install below plugins:
-<Follow the process as explained in the video>
+	Install below plugins:
+	<Follow the process as explained in the video>
 
 11. SonarQube configuration in Jenkins
-<Follow the process as explained in the video>
+	<Follow the process as explained in the video>
 
 11.1. Tools Configuration in Jenkins
-<Follow the process as explained in the video>
+	<Follow the process as explained in the video>
 
 11.2. Configuration of SonarQube Token in Jenkins
-<Follow the process as explained in the video>
+	<Follow the process as explained in the video>	
+	Lets create another credentials for DockerHub. This is being done because, as soon as the docker image is created, it should get pushed to dockerhub. 
+	<Follow the process as explained in the video>
 
-Lets create another credentials for DockerHub. This is being done because, as soon as the docker image is created, it should get pushed to dockerhub. 
-<Follow the process as explained in the video>
-
-11.3 Configuration of Email notification in Jenkins
-As soon as the build happens, i need to get an email notification to do that we have to configure our email.
-<Follow the process as explained in the video>
-
+11.3 Configuration of Email notification in Jenkins:
+	As soon as the build happens, i need to get an email notification to do that we have to configure our email.
+	<Follow the process as explained in the video>
 
 12. System Configuration in Jenkins
-<Follow the process as explained in the video>
+	<Follow the process as explained in the video>
 
 13. Create webhook in SonarQube
-<Follow the process as explained in the video>
+	<Follow the process as explained in the video>
 
-14. Create Pipeline Job
-Before pasting the pipeline script, do the following changes in the script
-1. In the stage 'Tag and Push to DockerHub', give your docker-hub username. Similar thing you should do in 'DockerScoutImage', 'Deploy to container' stages
-2. In post actions stage in pipeline, make sure to give the email id you have configured in jenkins.
+14. Create Pipeline Job:
+	Before pasting the pipeline script, do the following changes in the script
+	1. In the stage 'Tag and Push to DockerHub', give your docker-hub username. Similar thing you should do in 'DockerScoutImage', 'Deploy to  container' stages
+	2. In post actions stage in pipeline, make sure to give the email id you have configured in jenkins.
 
-*********************
-Pipeline Script
-*********************
-pipeline {
-    agent any
-    tools {
-        jdk 'jdk17'
-        nodejs 'node23'
-    }
-    environment {
-        SCANNER_HOME=tool 'sonar-scanner'
-    }
-    stages {
-        stage ("clean workspace") {
-            steps {
-                cleanWs()
-            }
-        }
-        stage ("Git Checkout") {
-            steps {
-                git 'https://github.com/KastroVKiran/Zomato-Project-Kastro.git'
-            }
-        }
-        stage("Sonarqube Analysis"){
-            steps{
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=zomato \
-                    -Dsonar.projectKey=zomato '''
-                }
-            }
-        }
-        stage("Code Quality Gate"){
-           steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
-                }
-            } 
-        }
-        stage("Install NPM Dependencies") {
-            steps {
-                sh "npm install"
-            }
-        }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit -n', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-    }
-}
-        stage ("Trivy File Scan") {
-            steps {
-                sh "trivy fs . > trivy.txt"
-            }
-        }
-        stage ("Build Docker Image") {
-            steps {
-                sh "docker build -t zomato ."
-            }
-        }
-        stage ("Tag & Push to DockerHub") {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag zomato kastrov/zomato:latest "
-                        sh "docker push kastrov/zomato:latest "
-                    }
-                }
-            }
-        }
-        stage('Docker Scout Image') {
-            steps {
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh 'docker-scout quickview kastrov/zomato:latest'
-                       sh 'docker-scout cves kastrov/zomato:latest'
-                       sh 'docker-scout recommendations kastrov/zomato:latest'
-                   }
-                }
-            }
-        }
-        stage ("Deploy to Container") {
-            steps {
-                sh 'docker run -d --name zomato -p 3000:3000 kastrov/zomato:latest'
-            }
-        }
-    }
-    post {
-    always {
-        emailext attachLog: true,
-            subject: "'${currentBuild.result}'",
-            body: """
-                <html>
-                <body>
-                    <div style="background-color: #FFA07A; padding: 10px; margin-bottom: 10px;">
-                        <p style="color: white; font-weight: bold;">Project: ${env.JOB_NAME}</p>
-                    </div>
-                    <div style="background-color: #90EE90; padding: 10px; margin-bottom: 10px;">
-                        <p style="color: white; font-weight: bold;">Build Number: ${env.BUILD_NUMBER}</p>
-                    </div>
-                    <div style="background-color: #87CEEB; padding: 10px; margin-bottom: 10px;">
-                        <p style="color: white; font-weight: bold;">URL: ${env.BUILD_URL}</p>
-                    </div>
-                </body>
-                </html>
-            """,
-            to: 'kastrokiran@gmail.com',
-            mimeType: 'text/html',
-            attachmentsPattern: 'trivy.txt'
-        }
-    }
-}
-
-
-
-If the build stage of "OWASP FS SCAN" shows 'UNSTABLE BUILD' replace the below script in OWASP FS SCAN stage
-stage('OWASP FS SCAN') {
-    steps {
-        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --update -n', odcInstallation: 'DP-Check'
-        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-    }
-}
+	*********************
+	Pipeline Script
+	*********************
+	pipeline {
+	    agent any
+	    tools {
+	        jdk 'jdk17'
+	        nodejs 'node23'
+	    }
+	    environment {
+	        SCANNER_HOME=tool 'sonar-scanner'
+	    }
+	    stages {
+	        stage ("clean workspace") {
+	            steps {
+	                cleanWs()
+	            }
+	        }
+	        stage ("Git Checkout") {
+	            steps {
+	                git 'https://github.com/AbdulAziz-uk/zomato.git'
+	            }
+	        }
+	        stage("Sonarqube Analysis"){
+	            steps{
+	                withSonarQubeEnv('sonar') {
+	                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=zomato \
+	                    -Dsonar.projectKey=zomato '''
+	                }
+	            }
+	        }
+	        stage("Code Quality Gate"){
+	           steps {
+	                script {
+	                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+	                }
+	            } 
+	        }
+	        stage("Install NPM Dependencies") {
+	            steps {
+	                sh "npm install"
+	            }
+	        }
+	        stage('OWASP FS SCAN') {
+	            steps {
+	                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit -n', odcInstallation: 'DC'
+	                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+	    }
+	}
+	        stage ("Trivy File Scan") {
+	            steps {
+	                sh "trivy fs . > trivy.txt"
+	            }
+	        }
+	        stage ("Build Docker Image") {
+	            steps {
+	                sh "docker build -t zomato ."
+	            }
+	        }
+	        stage ("Tag & Push to DockerHub") {
+	            steps {
+	                script {
+	                    withDockerRegistry(credentialsId: 'docker-cred') {
+	                        sh "docker tag zomato aziz27uk/zomato:latest "
+	                        sh "docker push aziz27uk/zomato:latest "
+	                    }
+	                }
+	            }
+	        }
+	        stage('Docker Scout Image') {
+	            steps {
+	                script{
+	                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker'){
+	                       sh 'docker-scout quickview aziz27uk/zomato:latest'
+	                       sh 'docker-scout cves aziz27uk/zomato:latest'
+	                       sh 'docker-scout recommendations aziz27uk/zomato:latest'
+	                   }
+	                }
+	            }
+	        }
+	        stage ("Deploy to Container") {
+	            steps {
+	                sh 'docker run -d --name zomato -p 3000:3000 aziz27uk/zomato:latest'
+	            }
+	        }
+	    }
+	    post {
+	    always {
+	        emailext attachLog: true,
+	            subject: "'${currentBuild.result}'",
+	            body: """
+	                <html>
+	                <body>
+	                    <div style="background-color: #FFA07A; padding: 10px; margin-bottom: 10px;">
+	                        <p style="color: white; font-weight: bold;">Project: ${env.JOB_NAME}</p>
+	                    </div>
+	                    <div style="background-color: #90EE90; padding: 10px; margin-bottom: 10px;">
+	                        <p style="color: white; font-weight: bold;">Build Number: ${env.BUILD_NUMBER}</p>
+	                    </div>
+	                    <div style="background-color: #87CEEB; padding: 10px; margin-bottom: 10px;">
+	                        <p style="color: white; font-weight: bold;">URL: ${env.BUILD_URL}</p>
+	                    </div>
+	                </body>
+	                </html>
+	            """,
+	            to: 'aziz.azure2025@gmail.com',
+	            mimeType: 'text/html',
+	            attachmentsPattern: 'trivy.txt'
+	        }
+	    }
+	}
+	
+	
+	
+	If the build stage of "OWASP FS SCAN" shows 'UNSTABLE BUILD' replace the below script in OWASP FS SCAN stage
+	stage('OWASP FS SCAN') {
+	    steps {
+	        dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --update -n', odcInstallation: 'DP-Check'
+	        dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+	    }
+	}
 
 
 Let the pipeline gets built. Meanwhile we will create VMs for monitoring.
@@ -713,4 +706,5 @@ Kind Request:
 Once after you have successfully deployed the App, kindly share your experience on LinkedIn by Tagging me and also provide the YouTube link of this project in your post, as it helps others to access the video quickly. 
 ========================================================================================================
 												HAPPY LEARNING
+
 
